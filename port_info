@@ -1,5 +1,5 @@
 SSH OPENSSH            : 22
-SSH DROPBEAR           : 22
+SSH DROPBEAR           : 109 / 143
 SSH WS                 : 80
 SSH WSS                : 443
 SSH DROPBEAR WS        : 8880

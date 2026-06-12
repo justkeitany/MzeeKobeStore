@@ -32,10 +32,11 @@ check_service() {
 # ── Gather system info (cached per run) ──────────────────────
 gather_info() {
     UPTIME_VAL=$(uptime -p 2>/dev/null | sed 's/up //' || uptime | awk -F'up ' '{print $2}' | awk -F',' '{print $1}')
-    IP=$(curl -s ifconfig.me --max-time 5 2>/dev/null || hostname -I | awk '{print $1}')
-    CITY=$(curl -s "https://ipinfo.io/$IP/city" --max-time 5 2>/dev/null || echo "Unknown")
-    ORG=$(curl -s "https://ipinfo.io/$IP/org" --max-time 5 2>/dev/null || echo "Unknown")
-    COUNTRY=$(curl -s "https://ipinfo.io/$IP/country" --max-time 5 2>/dev/null || echo "Unknown")
+    # Force IPv4 with -4 flag
+    IP=$(curl -4 -s ifconfig.me --max-time 5 2>/dev/null || hostname -I | awk '{print $1}')
+    CITY=$(curl -4 -s "https://ipinfo.io/$IP/city" --max-time 5 2>/dev/null || echo "Unknown")
+    ORG=$(curl -4 -s "https://ipinfo.io/$IP/org" --max-time 5 2>/dev/null || echo "Unknown")
+    COUNTRY=$(curl -4 -s "https://ipinfo.io/$IP/country" --max-time 5 2>/dev/null || echo "Unknown")
     DOMAIN=$(cat /root/.mzeekobe_domain 2>/dev/null || echo "Not set")
     TZ=$(cat /etc/timezone 2>/dev/null || timedatectl 2>/dev/null | grep "Time zone" | awk '{print $3}' || echo "UTC")
 

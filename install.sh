@@ -95,6 +95,26 @@ check_os() {
     detect_os
 }
 
+# ─── DISABLE IPv6 / PREFER IPv4 ──────────────────────────────────────────────
+disable_ipv6() {
+    log_info "Disabling IPv6 and enforcing IPv4..."
+
+    # Kernel sysctl
+    cat >> /etc/sysctl.conf << 'EOF'
+# Mzee Kobe - Disable IPv6
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+net.ipv6.conf.lo.disable_ipv6 = 1
+EOF
+    sysctl -p >/dev/null 2>&1
+
+    # Force apt and curl to use IPv4
+    echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/99force-ipv4
+    echo '--ipv4' >> /etc/curlrc 2>/dev/null || echo 'ipv4' >> ~/.curlrc
+
+    log_ok "IPv6 disabled. IPv4 enforced."
+}
+
 # ─── NODE.JS INSTALL ─────────────────────────────────────────────────────────
 install_nodejs() {
     log_info "Installing Node.js (LTS 18.x from NodeSource)..."
@@ -423,22 +443,22 @@ EOF
 
 # ─── DROPBEAR ────────────────────────────────────────────────────────────────
 setup_dropbear() {
-    log_info "Configuring Dropbear SSH (port 22)..."
+    log_info "Configuring Dropbear SSH (port 109 alongside OpenSSH)..."
 
+    # Dropbear runs on port 109 so it doesn't conflict with OpenSSH on 22
     if [ -f /etc/default/dropbear ]; then
         sed -i 's/NO_START=1/NO_START=0/' /etc/default/dropbear 2>/dev/null
         sed -i '/DROPBEAR_PORT/d' /etc/default/dropbear
         sed -i '/DROPBEAR_EXTRA_ARGS/d' /etc/default/dropbear
         sed -i '/DROPBEAR_BANNER/d' /etc/default/dropbear
-        echo 'DROPBEAR_PORT=22' >> /etc/default/dropbear
-        echo 'DROPBEAR_EXTRA_ARGS="-p 22"' >> /etc/default/dropbear
+        echo 'DROPBEAR_PORT=109' >> /etc/default/dropbear
+        echo 'DROPBEAR_EXTRA_ARGS="-p 109 -p 143"' >> /etc/default/dropbear
         echo 'DROPBEAR_BANNER="/etc/issue.net"' >> /etc/default/dropbear
     else
-        # Create config for newer systems
         cat > /etc/default/dropbear << 'EOF'
 NO_START=0
-DROPBEAR_PORT=22
-DROPBEAR_EXTRA_ARGS="-p 22"
+DROPBEAR_PORT=109
+DROPBEAR_EXTRA_ARGS="-p 109 -p 143"
 DROPBEAR_BANNER="/etc/issue.net"
 EOF
     fi
@@ -447,7 +467,7 @@ EOF
     systemctl restart dropbear 2>/dev/null
 
     if systemctl is-active --quiet dropbear; then
-        log_ok "Dropbear running on port 222."
+        log_ok "Dropbear running on ports 109 and 143."
     else
         log_err "Dropbear failed. Check: systemctl status dropbear"
     fi
@@ -778,9 +798,8 @@ print_summary() {
     echo ""
     echo -e "  ${YELLOW}Port Reference:${NC}"
     echo -e "  SSH OpenSSH    : 22"
-    echo -e "  SSH Dropbear   : 22"
+    echo -e "  SSH Dropbear   : 109 / 143"
     echo -e "  SSH WS / WSS   : 80 / 443"
-    echo -e "  SSH Dropbear   : 22"
     echo -e "  VMess WS       : 443 (TLS) / 80 (NTLS)"
     echo -e "  VMess Custom   : 2083 (TLS) / 2082 (NTLS)"
     echo -e "  VLESS WS       : 443 (TLS) / 80 (NTLS)"
@@ -805,6 +824,7 @@ main() {
     banner
     check_root
     check_os
+    disable_ipv6
 
     echo -e "${WHITE}  ── STARTING INSTALLATION ────────────────────────${NC}"
     echo ""

@@ -581,31 +581,43 @@ setup_banner() {
 
 # ─── PANEL INSTALL ────────────────────────────────────────────────────────────
 install_panel() {
-    log_info "Installing panel scripts to $INSTALL_DIR..."
+    log_info "Cloning Mzee Kobe Store panel from GitHub..."
 
-    mkdir -p "$INSTALL_DIR"
-    mkdir -p "$INSTALL_DIR/core"
-    mkdir -p "$INSTALL_DIR/menu"
-    mkdir -p "$INSTALL_DIR/module"
-    mkdir -p "$INSTALL_DIR/bot"
+    # Remove any old install
+    rm -rf "$INSTALL_DIR"
 
-    # Copy all project files
-    cp -r /tmp/mzeekobe_install/core/. "$INSTALL_DIR/core/" 2>/dev/null || true
-    cp -r /tmp/mzeekobe_install/menu/. "$INSTALL_DIR/menu/" 2>/dev/null || true
-    cp -r /tmp/mzeekobe_install/module/. "$INSTALL_DIR/module/" 2>/dev/null || true
-    cp -r /tmp/mzeekobe_install/bot/. "$INSTALL_DIR/bot/" 2>/dev/null || true
+    # Clone the repo
+    git clone --depth=1 https://github.com/justkeitany/MzeeKobeStore.git "$INSTALL_DIR" 2>/dev/null
 
-    # If running from the repo directly, copy from current dir
-    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-    if [ -d "$SCRIPT_DIR/core" ]; then
-        cp -r "$SCRIPT_DIR/core/." "$INSTALL_DIR/core/" 2>/dev/null
-        cp -r "$SCRIPT_DIR/menu/." "$INSTALL_DIR/menu/" 2>/dev/null
-        cp -r "$SCRIPT_DIR/module/." "$INSTALL_DIR/module/" 2>/dev/null
-        cp -r "$SCRIPT_DIR/bot/." "$INSTALL_DIR/bot/" 2>/dev/null
-        cp "$SCRIPT_DIR/version" "$INSTALL_DIR/version" 2>/dev/null
-        cp "$SCRIPT_DIR/port_info" "$INSTALL_DIR/port_info" 2>/dev/null
-        cp "$SCRIPT_DIR/mzeekobe.sh" "$INSTALL_DIR/mzeekobe.sh" 2>/dev/null
-        log_ok "Files copied from local repo."
+    if [ ! -d "$INSTALL_DIR/menu" ]; then
+        log_err "Git clone failed. Trying wget fallback..."
+
+        mkdir -p "$INSTALL_DIR/core" "$INSTALL_DIR/menu" "$INSTALL_DIR/module" "$INSTALL_DIR/bot"
+
+        # Download each file individually
+        BASE="https://raw.githubusercontent.com/justkeitany/MzeeKobeStore/main"
+
+        for f in version port_info mzeekobe.sh; do
+            wget -q "$BASE/$f" -O "$INSTALL_DIR/$f"
+        done
+        for f in ssh.py xray.py expiry.py status.py utils.py bbr.sh blocker.sh setup_dns.sh \
+                  setup_udp.sh sshws.sh ssl_renew.sh validator.sh vpn.sh websocket.sh xray.sh; do
+            wget -q "$BASE/core/$f" -O "$INSTALL_DIR/core/$f"
+        done
+        for f in menu.sh ssh.sh vmess.sh vless.sh trojan.sh socks.sh status.sh expiry.sh \
+                  domain.sh dns.sh port.sh log.sh iptools.sh netguard.sh update.sh zivpn.sh; do
+            wget -q "$BASE/menu/$f" -O "$INSTALL_DIR/menu/$f"
+        done
+        for f in ws.py dropbear-ws.py openvpn-wss.py proxy3.js nginx.conf mzeekobe.conf \
+                  config.json udp_config.json xray.service proxy.service badvpn.service \
+                  ws-stunnel.service issue.net hosts; do
+            wget -q "$BASE/module/$f" -O "$INSTALL_DIR/module/$f"
+        done
+        wget -q "$BASE/bot/bot.py" -O "$INSTALL_DIR/bot/bot.py"
+
+        log_ok "Files downloaded via wget fallback."
+    else
+        log_ok "Repository cloned successfully."
     fi
 
     # Make all scripts executable
@@ -613,7 +625,7 @@ install_panel() {
     chmod +x "$INSTALL_DIR/menu/"*.sh 2>/dev/null
     chmod +x "$INSTALL_DIR/mzeekobe.sh" 2>/dev/null
 
-    # Install the 'menu' command
+    # Install the 'menu' command in PATH
     cat > "$SBIN/menu" << EOF
 #!/bin/bash
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -624,9 +636,7 @@ EOF
     log_ok "Command 'menu' installed to $SBIN/menu"
 
     # Create users.json if it doesn't exist
-    if [ ! -f "$INSTALL_DIR/users.json" ]; then
-        echo '{}' > "$INSTALL_DIR/users.json"
-    fi
+    [ -f "$INSTALL_DIR/users.json" ] || echo '{}' > "$INSTALL_DIR/users.json"
 
     log_ok "Panel installed at $INSTALL_DIR"
 }

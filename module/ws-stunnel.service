@@ -1,0 +1,14 @@
+[Unit]
+Description=Dropbear SSH over WebSocket - Mzee Kobe Store
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /usr/local/mzeekobe/module/dropbear-ws.py -b 0.0.0.0 -p 8880
+Restart=on-failure
+RestartSec=5
+User=root
+LimitNOFILE=1000000
+WorkingDirectory=/usr/local/mzeekobe/module
+
+[Install]
+WantedBy=multi-user.target

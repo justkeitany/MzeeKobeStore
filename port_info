@@ -1,0 +1,28 @@
+SSH OPENSSH            : 22
+SSH DROPBEAR           : 22
+SSH WS                 : 80
+SSH WSS                : 443
+SSH DROPBEAR WS        : 8880
+
+VMESS WS TLS           : 443
+VMESS WS NTLS          : 80
+VMESS CUSTOM TLS       : 2083
+VMESS CUSTOM NTLS      : 2082
+
+VLESS WS TLS           : 443
+VLESS WS NTLS          : 80
+VLESS CUSTOM TLS       : 2087
+VLESS CUSTOM NTLS      : 2086
+
+TROJAN WS TLS          : 443
+TROJAN WS NTLS         : 80
+
+SOCKS WS TLS           : 443
+SOCKS WS NTLS          : 80
+
+OPENVPN TCP            : 1194
+OPENVPN UDP            : 2200
+SQUID PROXY            : 3128 / 8080
+OHP TCP                : 8000
+UDP CUSTOM             : 36712
+BADVPN UDPGW           : 7300

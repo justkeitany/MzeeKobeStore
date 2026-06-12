@@ -1,0 +1,13 @@
+[Unit]
+Description=SSH WebSocket Proxy (ws.py port 700) - Mzee Kobe Store
+After=network.target
+
+[Service]
+User=root
+ExecStart=/usr/bin/python3 /usr/local/mzeekobe/module/ws.py -b 127.0.0.1 -p 700
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=1000000
+
+[Install]
+WantedBy=multi-user.target

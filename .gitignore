@@ -1,0 +1,20 @@
+# Reference repos (not part of the project)
+doty_reference/
+pixerjason_reference/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs
+*.log
+
+# Runtime files
+*.json.bak
+.env
+
+# macOS
+.DS_Store
+.AppleDouble

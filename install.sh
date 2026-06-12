@@ -748,7 +748,7 @@ setup_firewall() {
         ufw --force reset >/dev/null 2>&1
         ufw default deny incoming >/dev/null 2>&1
         ufw default allow outgoing >/dev/null 2>&1
-        for port in 22 80 222 443 900 1194 2082 2083 2086 2087 2200 3128 7300 8000 8080 8880 36712; do
+        for port in 22 80 109 143 222 443 900 1194 2082 2083 2086 2087 2200 3128 7300 8000 8080 8880 36712; do
             ufw allow "$port" >/dev/null 2>&1
         done
         ufw allow 1194/udp >/dev/null 2>&1

@@ -12,10 +12,10 @@ sys.path.insert(0, os.path.dirname(__file__))
 from utils import *
 
 PROTOCOLS = {
-    "vmess":  {"tag": "vmess-ws",  "port": 10001, "path": "/vmess"},
-    "vless":  {"tag": "vless-ws",  "port": 10002, "path": "/vless"},
-    "trojan": {"tag": "trojan-ws", "port": 10003, "path": "/trojan"},
-    "socks":  {"tag": "socks-ws",  "port": 10004, "path": "/socks"},
+    "vmess":  {"tag": "vmess-ws",   "port": 2001, "path": "/vmess"},
+    "vless":  {"tag": "vless-ws",   "port": 3001, "path": "/vless"},
+    "trojan": {"tag": "trojan-ws",  "port": 1001, "path": "/trws"},
+    "socks":  {"tag": "socks-ws",   "port": 4001, "path": "/ssws"},
 }
 
 # ─── XRAY USER OPERATIONS ─────────────────────────────────────────────────────
@@ -31,7 +31,6 @@ def add_vmess_user(username: str, days: int) -> dict:
                 "id": uid, "alterId": 0, "email": username
             })
             break
-
     save_xray_config(config)
     add_user_record(username, {
         "type": "vmess", "uuid": uid, "expiry": exp,
@@ -92,7 +91,7 @@ def add_trojan_user(username: str, days: int, password: str = None) -> dict:
     save_xray_config(config)
     add_user_record(username, {
         "type": "trojan", "password": password, "expiry": exp,
-        "days": days, "path": "/trojan", "status": "active"
+        "days": days, "path": "/trws", "status": "active"
     })
 
     domain = get_domain()
@@ -100,8 +99,8 @@ def add_trojan_user(username: str, days: int, password: str = None) -> dict:
         "success": True, "protocol": "trojan",
         "username": username, "password": password,
         "expiry": exp, "days": days,
-        "link": _trojan_link(username, password, domain, "/trojan"),
-        "host": domain, "path": "/trojan",
+        "link": _trojan_link(username, password, domain, "/trws"),
+        "host": domain, "path": "/trws",
         "tls_port": 443, "ntls_port": 80
     }
 
@@ -121,7 +120,7 @@ def add_socks_user(username: str, days: int, password: str = None) -> dict:
     save_xray_config(config)
     add_user_record(username, {
         "type": "socks", "password": password, "expiry": exp,
-        "days": days, "path": "/socks", "status": "active"
+        "days": days, "path": "/ssws", "status": "active"
     })
 
     domain = get_domain()
@@ -129,7 +128,7 @@ def add_socks_user(username: str, days: int, password: str = None) -> dict:
         "success": True, "protocol": "socks",
         "username": username, "password": password,
         "expiry": exp, "days": days,
-        "host": domain, "path": "/socks",
+        "host": domain, "path": "/ssws",
         "tls_port": 443, "ntls_port": 80
     }
 
@@ -141,7 +140,10 @@ def delete_xray_user(username: str, protocol: str = None) -> dict:
         return {"success": False, "error": f"User '{username}' not found"}
 
     proto = protocol or user_data.get("type", "")
-    tag_map = {"vmess": "vmess-ws", "vless": "vless-ws", "trojan": "trojan-ws", "socks": "socks-ws"}
+    tag_map = {
+        "vmess": "vmess-ws", "vless": "vless-ws",
+        "trojan": "trojan-ws", "socks": "socks-ws"
+    }
     tag = tag_map.get(proto)
 
     removed = False

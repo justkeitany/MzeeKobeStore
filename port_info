@@ -1,28 +1,47 @@
-SSH OPENSSH            : 22
+===================================================
+  MZEE KOBE STORE - Port Reference
+===================================================
+
+SSH OPENSSH            : 22 / 143
 SSH DROPBEAR           : 109 / 143
-SSH WS                 : 80
-SSH WSS                : 443
-SSH DROPBEAR WS        : 8880
+SSH WS TLS             : 443
+SSH WS NTLS            : 80 / 8080 / 8880
 
 VMESS WS TLS           : 443
-VMESS WS NTLS          : 80
+VMESS WS NTLS          : 80 / 8080 / 8880
 VMESS CUSTOM TLS       : 2083
 VMESS CUSTOM NTLS      : 2082
 
 VLESS WS TLS           : 443
-VLESS WS NTLS          : 80
+VLESS WS NTLS          : 80 / 8080 / 8880
 VLESS CUSTOM TLS       : 2087
 VLESS CUSTOM NTLS      : 2086
+VLESS TCP XTLS TLS     : 443
+VLESS TCP XTLS NTLS    : 80 / 8080 / 8880
 
 TROJAN WS TLS          : 443
-TROJAN WS NTLS         : 80
+TROJAN WS NTLS         : 80 / 8080 / 8880
+TROJAN TCP TLS         : 443
+TROJAN TCP NTLS        : 80 / 8080 / 8880
 
 SOCKS WS TLS           : 443
-SOCKS WS NTLS          : 80
+SOCKS WS NTLS          : 80 / 8080 / 8880
 
 OPENVPN TCP            : 1194
 OPENVPN UDP            : 2200
-SQUID PROXY            : 3128 / 8080
+SQUID PROXY            : 3128
 OHP TCP                : 8000
 UDP CUSTOM             : 36712
 BADVPN UDPGW           : 7300
+
+===================================================
+  WS PATHS
+===================================================
+
+SSH WS                 : /<anypath>
+VMess WS               : /vmess
+VLESS WS               : /vless
+Trojan WS              : /trws
+SOCKS WS               : /ssws
+
+===================================================
